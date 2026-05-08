@@ -5,21 +5,30 @@ provider: Modal
 providerId: modal
 created: '2026-05-08'
 modified: '2026-05-08'
-reconciled: false
+reconciled: true
 tags:
 - AI
 - Serverless
 - Compute
 - Python
 - Inference
+- GPU
 - FinOps
 - Cost Management
 - FOCUS
-description: FOCUS-aligned FinOps placeholder for Modal. Pipeline will replace with the provider's
-  real billing-model details once researched.
-notes: Initial scaffold — billing model has not yet been reconciled.
+description: >-
+  FinOps view of Modal spend. Modal bills usage-based per-second meters for
+  CPU core-seconds, memory GiB-seconds, GPU-seconds (per GPU class), and
+  storage GiB-months on top of a tiered subscription (Starter / Team /
+  Enterprise). Free monthly credits offset compute up to a tier-specific
+  amount.
+notes: >-
+  Storage includes 1 TiB/month free; CPU minimum is 0.125 cores per
+  container. Modal does not charge for idle resources - meters tick only
+  while containers are running.
 sources:
-- https://modal.com/
+- https://modal.com/pricing
+- https://modal.com/docs
 - https://focus.finops.org/focus-specification/v1-3/
 alignedWith:
   framework: FinOps Foundation Framework
@@ -28,9 +37,9 @@ alignedWith:
   dataSpecVersion: '1.3'
   dataSpecUrl: https://focus.finops.org/focus-specification/v1-3/
 publisherName: Modal
-serviceCategory: AI
+serviceCategory: AI and Machine Learning
 billingModel:
-  pricingCategory: To Be Reconciled
+  pricingCategory: Usage-Based
   billingFrequency: Monthly
   billingCurrency: USD
   chargeCategories:
@@ -39,29 +48,69 @@ billingModel:
   - Adjustment
 focusColumns:
   ServiceName: Modal
-  ServiceCategory: AI
+  ServiceCategory: AI and Machine Learning
   ProviderName: Modal
   PublisherName: Modal
   InvoiceIssuerName: Modal
   BillingCurrency: USD
   ChargeCategory: Usage
+  PricingCategory: Usage-Based
 meters:
-- name: api_usage
-  description: Catch-all meter pending reconciliation against the provider's published metering.
-  unit: varies
+- name: cpu_core_seconds
+  description: Physical CPU core-seconds consumed per container, billed at $0.0000131/core-sec.
+  unit: core_seconds
   aggregation: sum
   dimensions:
-  - account
-  - resource
+  - workspace
+  - app
+  - function
+- name: memory_gib_seconds
+  description: Memory GiB-seconds consumed per container, billed at $0.00000222/GiB-sec.
+  unit: gib_seconds
+  aggregation: sum
+  dimensions:
+  - workspace
+  - app
+  - function
+- name: gpu_seconds
+  description: GPU-seconds consumed by class (T4 / L4 / A10 / A100-40 / A100-80 / H100 / H200 / B200) at the per-class rate.
+  unit: gpu_seconds
+  aggregation: sum
+  dimensions:
+  - workspace
+  - app
+  - function
+  - gpu_class
+- name: storage_gib_months
+  description: Persistent Volume / NFS storage GiB-months above the 1 TiB/month free allotment, billed at $0.09/GiB-mo.
+  unit: gib_months
+  aggregation: sum
+  dimensions:
+  - workspace
+  - volume
+- name: subscription_fee
+  description: Workspace tier monthly subscription ($0 Starter / $250 Team / Enterprise contract).
+  unit: month
+  aggregation: sum
+  dimensions:
+  - workspace
+  - tier
+- name: included_credits
+  description: Tier-bundled monthly credits ($30 Starter / $100 Team) applied first against compute meters.
+  unit: usd
+  aggregation: sum
+  dimensions:
+  - workspace
+  - tier
 principles:
 - name: Visibility
-  description: Pull provider invoices or usage exports until a self-serve usage feed is documented.
+  description: Pull per-app usage from the Modal dashboard / Modal usage API; export monthly invoices.
 - name: Allocation
-  description: Tag invoice line items to consuming business units in your FinOps store.
+  description: Tag apps and functions per team/workload via environments and labels; map to internal cost centers.
 - name: Optimization
-  description: Levers depend on the provider's billing model; review at renewal once reconciled.
+  description: Right-size CPU/memory and GPU class; use container_idle_timeout to release containers; pick smaller GPUs (T4/L4) when possible; aggregate workloads to amortize cold starts.
 - name: Accountability
-  description: Assign a contract owner to review billing against negotiated terms.
+  description: Assign owners per app/environment; review monthly GPU-second burn vs. budget.
 maintainers:
 - FN: Kin Lane
   email: kin@apievangelist.com

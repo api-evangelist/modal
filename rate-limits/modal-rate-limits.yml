@@ -5,32 +5,86 @@ provider: Modal
 providerId: modal
 created: '2026-05-08'
 modified: '2026-05-08'
-reconciled: false
+reconciled: true
 tags:
 - AI
 - Serverless
 - Compute
 - Python
 - Inference
+- GPU
 - Rate Limiting
 - Quotas
 - Throttling
-description: Placeholder rate-limit artifact for Modal. Replace with real limits once the pipeline
-  researches the provider's rate-limit documentation.
-notes: Initial scaffold — limits have not yet been reconciled against the provider's documentation.
+description: >-
+  Modal enforces tier-based concurrency caps as the primary rate-limit
+  mechanism: Starter is capped at 100 concurrent containers and 10 concurrent
+  GPUs; Team at 1,000 concurrent containers and 50 concurrent GPUs;
+  Enterprise has higher, negotiated caps. Per-function fan-out concurrency
+  is also user-configurable. Control-plane API call limits are not publicly
+  documented.
+notes: >-
+  Concurrency caps are enforced by the Modal scheduler and surface as queued
+  containers rather than 429s. Workspace-level seat caps apply to Starter (3
+  seats); Team and Enterprise are unlimited.
 sources:
-- https://modal.com/
+- https://modal.com/pricing
+- https://modal.com/docs
 responseCodes:
   throttled: 429
 limits:
-- name: Default
-  scope: account
-  metric: varies
+- name: Concurrent Containers (Starter)
+  scope: workspace
+  metric: concurrent
+  limit: 100
+  notes: Starter-tier hard cap on simultaneous active containers.
+- name: Concurrent Containers (Team)
+  scope: workspace
+  metric: concurrent
+  limit: 1000
+  notes: Team-tier hard cap on simultaneous active containers.
+- name: Concurrent Containers (Enterprise)
+  scope: workspace
+  metric: concurrent
+  limit: negotiated
+  notes: Enterprise concurrency is set by contract.
+- name: Concurrent GPUs (Starter)
+  scope: workspace
+  metric: concurrent
+  limit: 10
+  notes: Starter-tier hard cap on simultaneous active GPUs.
+- name: Concurrent GPUs (Team)
+  scope: workspace
+  metric: concurrent
+  limit: 50
+  notes: Team-tier hard cap on simultaneous active GPUs.
+- name: Concurrent GPUs (Enterprise)
+  scope: workspace
+  metric: concurrent
+  limit: negotiated
+  notes: Enterprise GPU concurrency is set by contract.
+- name: Workspace Seats (Starter)
+  scope: workspace
+  metric: seats
+  limit: 3
+  notes: Starter-tier seat limit.
+- name: Per-Function Concurrency
+  scope: function
+  metric: concurrent
+  limit: user-configured
+  notes: Set via @modal.method(allow_concurrent_inputs=...) and container_idle_timeout.
+- name: Control-Plane API Rate
+  scope: workspace
+  metric: requests
   limit: see provider documentation
   notes: Pending reconciliation.
 policies:
+- name: Tier Upgrade
+  description: Move from Starter to Team / Enterprise to raise concurrency caps.
 - name: Backoff Strategy
-  description: Clients should implement exponential backoff with jitter and honor any Retry-After header.
+  description: Clients should implement exponential backoff with jitter and honor Retry-After.
+- name: Container Pooling
+  description: Use keep-warm and idle-timeout settings to reduce cold-start pressure under bursty load.
 maintainers:
 - FN: Kin Lane
   email: kin@apievangelist.com
