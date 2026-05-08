@@ -1,0 +1,29 @@
+aid: modal
+url: https://raw.githubusercontent.com/api-evangelist/modal/refs/heads/main/apis.yml
+name: Modal
+x-type: company
+description: >-
+  Modal is a serverless cloud platform optimized for AI, data, and Python workloads. The Modal API and SDK let developers deploy GPU-accelerated functions, batch jobs, and web endpoints with sub-second cold starts.
+image: https://kinlane-productions.s3.amazonaws.com/apis-json/apis-json-logo.jpg
+tags:
+  - AI
+  - Serverless
+  - Compute
+  - Python
+  - Inference
+created: '2026-05-08'
+modified: '2026-05-08'
+specificationVersion: '0.19'
+apis: []
+common:
+  - type: Website
+    url: https://modal.com/
+  - type: Plans
+    url: plans/modal-plans-pricing.yml
+  - type: RateLimits
+    url: rate-limits/modal-rate-limits.yml
+  - type: FinOps
+    url: finops/modal-finops.yml
+maintainers:
+  - FN: Kin Lane
+    email: kin@apievangelist.com
