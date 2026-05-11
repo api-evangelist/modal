@@ -229,6 +229,12 @@ common:
     url: rate-limits/modal-rate-limits.yml
   - type: FinOps
     url: finops/modal-finops.yml
+  - type: Integrations
+    url: https://modal.com/partners
+integrations:
+  - name: Modal
+  - name: SGL
+  - name: Implementation Partner
 maintainers:
   - FN: Kin Lane
     email: kin@apievangelist.com
