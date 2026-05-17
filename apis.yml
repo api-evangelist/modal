@@ -1,7 +1,7 @@
 aid: modal
 url: https://raw.githubusercontent.com/api-evangelist/modal/refs/heads/main/apis.yml
 name: Modal
-x-type: company
+kind: company
 description: >-
   Modal is a serverless cloud platform optimized for AI, data, and Python workloads. The Modal SDK and API let developers deploy GPU-accelerated functions, batch jobs, sandboxed code execution, web endpoints, and scheduled tasks with sub-second cold starts and pay-per-second billing.
 image: https://kinlane-productions.s3.amazonaws.com/apis-json/apis-json-logo.jpg
@@ -29,7 +29,7 @@ apis:
       - url: https://modal.com/docs/guide/apps
         type: Documentation
       - url: https://modal.com/docs/reference/modal.Function
-        type: API Reference
+        type: APIReference
     description: >-
       Defines, deploys, and invokes serverless Python Functions on Modal with per-function GPU/CPU/memory configuration, autoscaling, and sub-second cold starts.
   - aid: modal:modal-apps-api
@@ -44,7 +44,7 @@ apis:
       - url: https://modal.com/docs/guide/apps
         type: Documentation
       - url: https://modal.com/docs/reference/modal.App
-        type: API Reference
+        type: APIReference
     description: >-
       Logical grouping of functions, classes, and resources deployed and versioned together as an App.
   - aid: modal:modal-sandboxes-api
@@ -60,7 +60,7 @@ apis:
       - url: https://modal.com/docs/guide/sandbox
         type: Documentation
       - url: https://modal.com/docs/reference/modal.Sandbox
-        type: API Reference
+        type: APIReference
     description: >-
       Spins up isolated, GPU-capable sandbox containers for running untrusted code (LLM agents, tool use, code-interpreter workflows) with file-system and network controls.
   - aid: modal:modal-images-api
@@ -76,7 +76,7 @@ apis:
       - url: https://modal.com/docs/guide/images
         type: Documentation
       - url: https://modal.com/docs/reference/modal.Image
-        type: API Reference
+        type: APIReference
     description: >-
       Builds, caches, and rehydrates container images with pip / conda / apt / uv layers and supports custom Dockerfiles for function and sandbox runtimes.
   - aid: modal:modal-volumes-api
@@ -92,7 +92,7 @@ apis:
       - url: https://modal.com/docs/guide/volumes
         type: Documentation
       - url: https://modal.com/docs/reference/modal.Volume
-        type: API Reference
+        type: APIReference
     description: >-
       Distributed read/write Volumes for persistent storage of model weights, datasets, and caches across function invocations.
   - aid: modal:modal-network-file-systems-api
@@ -121,7 +121,7 @@ apis:
       - url: https://modal.com/docs/guide/secrets
         type: Documentation
       - url: https://modal.com/docs/reference/modal.Secret
-        type: API Reference
+        type: APIReference
     description: >-
       Stores environment-variable secrets and API keys, mountable into functions and sandboxes at runtime.
   - aid: modal:modal-web-endpoints-api
@@ -162,7 +162,7 @@ apis:
     baseURL: https://api.modal.com
     properties:
       - url: https://modal.com/docs/reference/modal.Queue
-        type: API Reference
+        type: APIReference
     description: >-
       Distributed FIFO queues for asynchronous workloads, work-stealing, and producer/consumer patterns across functions.
   - aid: modal:modal-dicts-api
@@ -175,7 +175,7 @@ apis:
     baseURL: https://api.modal.com
     properties:
       - url: https://modal.com/docs/reference/modal.Dict
-        type: API Reference
+        type: APIReference
     description: >-
       Distributed dictionaries (key-value stores) for sharing state between functions and across container restarts.
   - aid: modal:modal-tunnels-api
