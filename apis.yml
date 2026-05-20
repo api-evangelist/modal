@@ -219,6 +219,10 @@ apis:
     description: >-
       Manages workspaces, tokens, members, and authentication for the Modal control plane.
 common:
+  - type: GitHubOrganization
+    url: https://github.com/modal-labs
+  - type: LinkedIn
+    url: https://www.linkedin.com/company/modal-labs
   - type: Website
     url: https://modal.com/
   - type: Documentation
