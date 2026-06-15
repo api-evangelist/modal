@@ -1,0 +1,1111 @@
+"""
+Modal GraphQL Schema
+Serverless cloud platform for AI and data science workloads.
+Conceptual schema derived from Modal REST/gRPC API surface.
+"""
+
+# ─────────────────────────────────────────
+# Scalars
+# ─────────────────────────────────────────
+
+scalar DateTime
+scalar JSON
+scalar Upload
+
+# ─────────────────────────────────────────
+# Enums
+# ─────────────────────────────────────────
+
+enum AppState {
+  INITIALIZING
+  RUNNING
+  STOPPED
+  FAILED
+  DEPLOYED
+  EPHEMERAL
+}
+
+enum FunctionState {
+  IDLE
+  RUNNING
+  FAILED
+  SUCCEEDED
+  CANCELLED
+}
+
+enum SandboxState {
+  CREATING
+  RUNNING
+  STOPPED
+  FAILED
+}
+
+enum ImageBuildState {
+  PENDING
+  BUILDING
+  READY
+  FAILED
+}
+
+enum VolumeState {
+  CREATING
+  READY
+  DELETING
+  FAILED
+}
+
+enum SecretType {
+  CUSTOM
+  PROVIDER_AWS
+  PROVIDER_GCP
+  PROVIDER_AZURE
+  PROVIDER_HUGGINGFACE
+  PROVIDER_OPENAI
+}
+
+enum GpuType {
+  T4
+  A10G
+  A100
+  A100_80GB
+  H100
+  H100_80GB
+  L4
+  L40S
+  ANY
+}
+
+enum CpuArchitecture {
+  X86_64
+  ARM64
+}
+
+enum ScheduleType {
+  CRON
+  PERIOD
+}
+
+enum QueuePartitionStrategy {
+  FIFO
+  LIFO
+  PRIORITY
+}
+
+enum WebEndpointType {
+  ASGI
+  WSGI
+  HTTP
+  WEBSOCKET
+}
+
+enum NetworkProtocol {
+  TCP
+  UDP
+  HTTP
+  HTTPS
+}
+
+enum EnvironmentTier {
+  DEVELOPMENT
+  STAGING
+  PRODUCTION
+}
+
+enum LogLevel {
+  DEBUG
+  INFO
+  WARNING
+  ERROR
+  CRITICAL
+}
+
+enum TokenScope {
+  WORKSPACE
+  ENVIRONMENT
+  APP
+}
+
+enum MemberRole {
+  OWNER
+  ADMIN
+  DEVELOPER
+  VIEWER
+}
+
+enum SortOrder {
+  ASC
+  DESC
+}
+
+enum ResourceClass {
+  MICRO
+  SMALL
+  MEDIUM
+  LARGE
+  XLARGE
+}
+
+# ─────────────────────────────────────────
+# Core Entity Types
+# ─────────────────────────────────────────
+
+type Workspace {
+  id: ID!
+  name: String!
+  slug: String!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+  members: [WorkspaceMember!]!
+  environments: [Environment!]!
+  apps: [App!]!
+  secrets: [Secret!]!
+  tokens: [Token!]!
+  quotas: WorkspaceQuota!
+  billingInfo: BillingInfo
+}
+
+type WorkspaceMember {
+  id: ID!
+  user: User!
+  workspace: Workspace!
+  role: MemberRole!
+  joinedAt: DateTime!
+}
+
+type User {
+  id: ID!
+  email: String!
+  name: String
+  avatarUrl: String
+  createdAt: DateTime!
+  workspaces: [Workspace!]!
+}
+
+type Environment {
+  id: ID!
+  name: String!
+  slug: String!
+  tier: EnvironmentTier!
+  workspace: Workspace!
+  apps: [App!]!
+  secrets: [Secret!]!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
+type App {
+  id: ID!
+  name: String!
+  state: AppState!
+  environment: Environment!
+  workspace: Workspace!
+  functions: [Function!]!
+  deployments: [Deployment!]!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+  description: String
+  tags: [String!]
+  isEphemeral: Boolean!
+}
+
+type Deployment {
+  id: ID!
+  app: App!
+  version: String!
+  deployedAt: DateTime!
+  deployedBy: User!
+  state: AppState!
+  functions: [Function!]!
+  gitRef: String
+  changelog: String
+}
+
+type Function {
+  id: ID!
+  name: String!
+  app: App!
+  state: FunctionState!
+  image: ContainerImage!
+  resourceConfig: ResourceConfig!
+  schedule: Schedule
+  webEndpoint: WebEndpoint
+  secrets: [Secret!]!
+  volumes: [VolumeMount!]!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+  isGenerator: Boolean!
+  isAsync: Boolean!
+  concurrencyLimit: Int
+  timeoutSeconds: Int
+  retries: Int
+  stats: FunctionStats
+}
+
+type FunctionCall {
+  id: ID!
+  function: Function!
+  state: FunctionState!
+  inputs: JSON
+  outputs: JSON
+  error: String
+  startedAt: DateTime
+  finishedAt: DateTime
+  durationMs: Int
+  logs: [LogEntry!]
+}
+
+type ResourceConfig {
+  cpu: Float!
+  memoryMb: Int!
+  gpu: GpuConfig
+  arch: CpuArchitecture!
+  ephemeralDiskGb: Int
+}
+
+type GpuConfig {
+  type: GpuType!
+  count: Int!
+  memoryGb: Int
+}
+
+type FunctionStats {
+  totalCalls: Int!
+  successCalls: Int!
+  failedCalls: Int!
+  avgDurationMs: Float
+  p50DurationMs: Float
+  p95DurationMs: Float
+  p99DurationMs: Float
+  lastInvokedAt: DateTime
+}
+
+type ContainerImage {
+  id: ID!
+  name: String!
+  state: ImageBuildState!
+  baseImage: String!
+  layers: [ImageLayer!]!
+  createdAt: DateTime!
+  sizeBytes: Int
+  digest: String
+  workspace: Workspace!
+}
+
+type ImageLayer {
+  id: ID!
+  type: String!
+  command: String!
+  order: Int!
+  sizeBytes: Int
+  cachedAt: DateTime
+}
+
+type Sandbox {
+  id: ID!
+  app: App!
+  state: SandboxState!
+  image: ContainerImage!
+  resourceConfig: ResourceConfig!
+  secrets: [Secret!]!
+  volumes: [VolumeMount!]!
+  createdAt: DateTime!
+  terminatedAt: DateTime
+  timeout: Int
+  networkAccess: NetworkConfig
+  logs: [LogEntry!]
+}
+
+type NetworkConfig {
+  egressEnabled: Boolean!
+  allowedHosts: [String!]
+  allowedPorts: [Int!]
+}
+
+type Volume {
+  id: ID!
+  name: String!
+  state: VolumeState!
+  workspace: Workspace!
+  environment: Environment!
+  sizeBytes: Int
+  usedBytes: Int
+  createdAt: DateTime!
+  updatedAt: DateTime!
+  mounts: [VolumeMount!]
+}
+
+type VolumeMount {
+  id: ID!
+  volume: Volume!
+  mountPath: String!
+  readOnly: Boolean!
+}
+
+type VolumeFile {
+  path: String!
+  sizeBytes: Int!
+  isDirectory: Boolean!
+  modifiedAt: DateTime!
+}
+
+type NetworkFileSystem {
+  id: ID!
+  name: String!
+  workspace: Workspace!
+  environment: Environment!
+  createdAt: DateTime!
+  sizeBytes: Int
+}
+
+type Secret {
+  id: ID!
+  name: String!
+  type: SecretType!
+  workspace: Workspace!
+  environment: Environment!
+  keys: [String!]!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
+type Token {
+  id: ID!
+  name: String!
+  scope: TokenScope!
+  workspace: Workspace!
+  createdAt: DateTime!
+  expiresAt: DateTime
+  lastUsedAt: DateTime
+  isActive: Boolean!
+}
+
+type Schedule {
+  id: ID!
+  type: ScheduleType!
+  cronExpression: String
+  periodSeconds: Int
+  timezone: String
+  enabled: Boolean!
+  nextRunAt: DateTime
+  lastRunAt: DateTime
+  jobHistory: [ScheduledJob!]
+}
+
+type ScheduledJob {
+  id: ID!
+  schedule: Schedule!
+  function: Function!
+  state: FunctionState!
+  startedAt: DateTime
+  finishedAt: DateTime
+  error: String
+}
+
+type Queue {
+  id: ID!
+  name: String!
+  workspace: Workspace!
+  environment: Environment!
+  partitionStrategy: QueuePartitionStrategy!
+  size: Int!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+  timeoutSeconds: Int
+}
+
+type QueueMessage {
+  id: ID!
+  queue: Queue!
+  payload: JSON!
+  priority: Int
+  enqueuedAt: DateTime!
+  processedAt: DateTime
+  attempts: Int!
+}
+
+type Dict {
+  id: ID!
+  name: String!
+  workspace: Workspace!
+  environment: Environment!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+  ttlSeconds: Int
+  entryCount: Int!
+}
+
+type DictEntry {
+  key: String!
+  value: JSON
+  createdAt: DateTime!
+  expiresAt: DateTime
+}
+
+type Tunnel {
+  id: ID!
+  app: App!
+  localPort: Int!
+  remoteHost: String!
+  remotePort: Int!
+  protocol: NetworkProtocol!
+  createdAt: DateTime!
+  expiresAt: DateTime
+  isActive: Boolean!
+}
+
+type WebEndpoint {
+  id: ID!
+  function: Function!
+  url: String!
+  type: WebEndpointType!
+  customDomain: String
+  tlsEnabled: Boolean!
+  createdAt: DateTime!
+  authRequired: Boolean!
+}
+
+type LogEntry {
+  timestamp: DateTime!
+  level: LogLevel!
+  message: String!
+  source: String
+  functionCallId: String
+}
+
+type WorkspaceQuota {
+  maxCpuCores: Float!
+  maxMemoryGb: Float!
+  maxGpuCount: Int!
+  maxApps: Int!
+  maxVolumeSizeGb: Int!
+  currentCpuCores: Float!
+  currentMemoryGb: Float!
+  currentGpuCount: Int!
+}
+
+type BillingInfo {
+  plan: String!
+  currentPeriodStart: DateTime!
+  currentPeriodEnd: DateTime!
+  creditBalance: Float!
+  estimatedCost: Float!
+  currency: String!
+}
+
+type UsageRecord {
+  id: ID!
+  workspace: Workspace!
+  resourceType: String!
+  quantity: Float!
+  unit: String!
+  costUsd: Float!
+  periodStart: DateTime!
+  periodEnd: DateTime!
+  functionId: String
+  appId: String
+}
+
+# ─────────────────────────────────────────
+# Connection / Pagination Types
+# ─────────────────────────────────────────
+
+type PageInfo {
+  hasNextPage: Boolean!
+  hasPreviousPage: Boolean!
+  startCursor: String
+  endCursor: String
+  totalCount: Int!
+}
+
+type AppConnection {
+  edges: [AppEdge!]!
+  pageInfo: PageInfo!
+}
+
+type AppEdge {
+  node: App!
+  cursor: String!
+}
+
+type FunctionConnection {
+  edges: [FunctionEdge!]!
+  pageInfo: PageInfo!
+}
+
+type FunctionEdge {
+  node: Function!
+  cursor: String!
+}
+
+type FunctionCallConnection {
+  edges: [FunctionCallEdge!]!
+  pageInfo: PageInfo!
+}
+
+type FunctionCallEdge {
+  node: FunctionCall!
+  cursor: String!
+}
+
+type SandboxConnection {
+  edges: [SandboxEdge!]!
+  pageInfo: PageInfo!
+}
+
+type SandboxEdge {
+  node: Sandbox!
+  cursor: String!
+}
+
+type VolumeConnection {
+  edges: [VolumeEdge!]!
+  pageInfo: PageInfo!
+}
+
+type VolumeEdge {
+  node: Volume!
+  cursor: String!
+}
+
+type SecretConnection {
+  edges: [SecretEdge!]!
+  pageInfo: PageInfo!
+}
+
+type SecretEdge {
+  node: Secret!
+  cursor: String!
+}
+
+type LogConnection {
+  edges: [LogEdge!]!
+  pageInfo: PageInfo!
+}
+
+type LogEdge {
+  node: LogEntry!
+  cursor: String!
+}
+
+type UsageConnection {
+  edges: [UsageEdge!]!
+  pageInfo: PageInfo!
+}
+
+type UsageEdge {
+  node: UsageRecord!
+  cursor: String!
+}
+
+# ─────────────────────────────────────────
+# Input Types
+# ─────────────────────────────────────────
+
+input PaginationInput {
+  first: Int
+  after: String
+  last: Int
+  before: String
+}
+
+input AppFilterInput {
+  state: AppState
+  environmentId: ID
+  search: String
+  tags: [String!]
+  isEphemeral: Boolean
+}
+
+input FunctionFilterInput {
+  state: FunctionState
+  appId: ID
+  hasSchedule: Boolean
+  hasWebEndpoint: Boolean
+  hasGpu: Boolean
+}
+
+input CreateAppInput {
+  name: String!
+  environmentId: ID!
+  description: String
+  tags: [String!]
+}
+
+input UpdateAppInput {
+  name: String
+  description: String
+  tags: [String!]
+}
+
+input DeployAppInput {
+  appId: ID!
+  gitRef: String
+  changelog: String
+}
+
+input CreateFunctionInput {
+  name: String!
+  appId: ID!
+  imageId: ID!
+  resourceConfig: ResourceConfigInput!
+  secretIds: [ID!]
+  volumeMounts: [VolumeMountInput!]
+  timeoutSeconds: Int
+  concurrencyLimit: Int
+  retries: Int
+  isAsync: Boolean
+}
+
+input ResourceConfigInput {
+  cpu: Float!
+  memoryMb: Int!
+  gpu: GpuConfigInput
+  arch: CpuArchitecture
+  ephemeralDiskGb: Int
+}
+
+input GpuConfigInput {
+  type: GpuType!
+  count: Int
+}
+
+input VolumeMountInput {
+  volumeId: ID!
+  mountPath: String!
+  readOnly: Boolean
+}
+
+input InvokeFunctionInput {
+  functionId: ID!
+  inputs: JSON
+  async: Boolean
+  timeoutSeconds: Int
+}
+
+input CreateImageInput {
+  name: String!
+  baseImage: String!
+  layers: [ImageLayerInput!]
+  workspaceId: ID!
+}
+
+input ImageLayerInput {
+  type: String!
+  command: String!
+}
+
+input CreateSandboxInput {
+  appId: ID!
+  imageId: ID!
+  resourceConfig: ResourceConfigInput!
+  secretIds: [ID!]
+  volumeMounts: [VolumeMountInput!]
+  timeoutSeconds: Int
+  networkAccess: NetworkConfigInput
+}
+
+input NetworkConfigInput {
+  egressEnabled: Boolean
+  allowedHosts: [String!]
+  allowedPorts: [Int!]
+}
+
+input CreateVolumeInput {
+  name: String!
+  environmentId: ID!
+}
+
+input CreateSecretInput {
+  name: String!
+  environmentId: ID!
+  type: SecretType!
+  entries: [SecretEntryInput!]!
+}
+
+input SecretEntryInput {
+  key: String!
+  value: String!
+}
+
+input UpdateSecretInput {
+  entries: [SecretEntryInput!]!
+}
+
+input CreateTokenInput {
+  name: String!
+  workspaceId: ID!
+  scope: TokenScope!
+  expiresAt: DateTime
+}
+
+input CreateScheduleInput {
+  functionId: ID!
+  type: ScheduleType!
+  cronExpression: String
+  periodSeconds: Int
+  timezone: String
+}
+
+input CreateQueueInput {
+  name: String!
+  environmentId: ID!
+  partitionStrategy: QueuePartitionStrategy
+  timeoutSeconds: Int
+}
+
+input EnqueueMessageInput {
+  queueId: ID!
+  payload: JSON!
+  priority: Int
+}
+
+input CreateDictInput {
+  name: String!
+  environmentId: ID!
+  ttlSeconds: Int
+}
+
+input CreateWebEndpointInput {
+  functionId: ID!
+  type: WebEndpointType!
+  customDomain: String
+  authRequired: Boolean
+}
+
+input LogFilterInput {
+  level: LogLevel
+  source: String
+  startTime: DateTime
+  endTime: DateTime
+  search: String
+}
+
+input UsageFilterInput {
+  resourceType: String
+  startDate: DateTime!
+  endDate: DateTime!
+  appId: ID
+  functionId: ID
+}
+
+# ─────────────────────────────────────────
+# Mutation Result Types
+# ─────────────────────────────────────────
+
+type AppResult {
+  app: App
+  errors: [UserError!]
+}
+
+type FunctionResult {
+  function: Function
+  errors: [UserError!]
+}
+
+type FunctionCallResult {
+  functionCall: FunctionCall
+  errors: [UserError!]
+}
+
+type ImageResult {
+  image: ContainerImage
+  errors: [UserError!]
+}
+
+type SandboxResult {
+  sandbox: Sandbox
+  errors: [UserError!]
+}
+
+type VolumeResult {
+  volume: Volume
+  errors: [UserError!]
+}
+
+type SecretResult {
+  secret: Secret
+  errors: [UserError!]
+}
+
+type TokenResult {
+  token: Token
+  plaintext: String
+  errors: [UserError!]
+}
+
+type ScheduleResult {
+  schedule: Schedule
+  errors: [UserError!]
+}
+
+type QueueResult {
+  queue: Queue
+  errors: [UserError!]
+}
+
+type QueueMessageResult {
+  message: QueueMessage
+  errors: [UserError!]
+}
+
+type DictResult {
+  dict: Dict
+  errors: [UserError!]
+}
+
+type WebEndpointResult {
+  webEndpoint: WebEndpoint
+  errors: [UserError!]
+}
+
+type DeleteResult {
+  success: Boolean!
+  errors: [UserError!]
+}
+
+type UserError {
+  field: String
+  message: String!
+  code: String
+}
+
+# ─────────────────────────────────────────
+# Query Root
+# ─────────────────────────────────────────
+
+type Query {
+  # Workspace
+  workspace(id: ID!): Workspace
+  workspaces: [Workspace!]!
+  currentWorkspace: Workspace
+
+  # Environments
+  environment(id: ID!): Environment
+  environments(workspaceId: ID!): [Environment!]!
+
+  # Apps
+  app(id: ID!): App
+  apps(
+    workspaceId: ID!
+    filter: AppFilterInput
+    pagination: PaginationInput
+    orderBy: SortOrder
+  ): AppConnection!
+
+  # Deployments
+  deployment(id: ID!): Deployment
+  deployments(appId: ID!, pagination: PaginationInput): [Deployment!]!
+
+  # Functions
+  function(id: ID!): Function
+  functions(
+    appId: ID!
+    filter: FunctionFilterInput
+    pagination: PaginationInput
+  ): FunctionConnection!
+
+  # Function Calls
+  functionCall(id: ID!): FunctionCall
+  functionCalls(
+    functionId: ID!
+    filter: FunctionFilterInput
+    pagination: PaginationInput
+  ): FunctionCallConnection!
+
+  # Container Images
+  image(id: ID!): ContainerImage
+  images(workspaceId: ID!, pagination: PaginationInput): [ContainerImage!]!
+
+  # Sandboxes
+  sandbox(id: ID!): Sandbox
+  sandboxes(
+    appId: ID!
+    pagination: PaginationInput
+  ): SandboxConnection!
+
+  # Volumes
+  volume(id: ID!): Volume
+  volumes(
+    environmentId: ID!
+    pagination: PaginationInput
+  ): VolumeConnection!
+  volumeFiles(volumeId: ID!, path: String): [VolumeFile!]!
+
+  # Network File Systems
+  networkFileSystem(id: ID!): NetworkFileSystem
+  networkFileSystems(environmentId: ID!): [NetworkFileSystem!]!
+
+  # Secrets
+  secret(id: ID!): Secret
+  secrets(
+    environmentId: ID!
+    pagination: PaginationInput
+  ): SecretConnection!
+
+  # Tokens
+  token(id: ID!): Token
+  tokens(workspaceId: ID!): [Token!]!
+
+  # Schedules
+  schedule(id: ID!): Schedule
+  scheduledJobs(scheduleId: ID!, pagination: PaginationInput): [ScheduledJob!]!
+
+  # Queues
+  queue(id: ID!): Queue
+  queues(environmentId: ID!): [Queue!]!
+  queueMessages(queueId: ID!, pagination: PaginationInput): [QueueMessage!]!
+
+  # Dicts
+  dict(id: ID!): Dict
+  dicts(environmentId: ID!): [Dict!]!
+  dictEntry(dictId: ID!, key: String!): DictEntry
+
+  # Tunnels
+  tunnel(id: ID!): Tunnel
+  tunnels(appId: ID!): [Tunnel!]!
+
+  # Web Endpoints
+  webEndpoint(id: ID!): WebEndpoint
+  webEndpoints(functionId: ID): [WebEndpoint!]!
+
+  # Logs
+  logs(
+    appId: ID
+    functionId: ID
+    sandboxId: ID
+    filter: LogFilterInput
+    pagination: PaginationInput
+  ): LogConnection!
+
+  # Usage / Billing
+  usageRecords(
+    workspaceId: ID!
+    filter: UsageFilterInput!
+    pagination: PaginationInput
+  ): UsageConnection!
+  workspaceQuota(workspaceId: ID!): WorkspaceQuota!
+  billingInfo(workspaceId: ID!): BillingInfo
+
+  # Users
+  me: User
+  user(id: ID!): User
+  workspaceMembers(workspaceId: ID!): [WorkspaceMember!]!
+}
+
+# ─────────────────────────────────────────
+# Mutation Root
+# ─────────────────────────────────────────
+
+type Mutation {
+  # Apps
+  createApp(input: CreateAppInput!): AppResult!
+  updateApp(id: ID!, input: UpdateAppInput!): AppResult!
+  deployApp(input: DeployAppInput!): AppResult!
+  stopApp(id: ID!): AppResult!
+  deleteApp(id: ID!): DeleteResult!
+
+  # Functions
+  createFunction(input: CreateFunctionInput!): FunctionResult!
+  updateFunction(id: ID!, input: CreateFunctionInput!): FunctionResult!
+  deleteFunction(id: ID!): DeleteResult!
+  invokeFunction(input: InvokeFunctionInput!): FunctionCallResult!
+  cancelFunctionCall(id: ID!): FunctionCallResult!
+
+  # Images
+  createImage(input: CreateImageInput!): ImageResult!
+  deleteImage(id: ID!): DeleteResult!
+  buildImage(id: ID!): ImageResult!
+
+  # Sandboxes
+  createSandbox(input: CreateSandboxInput!): SandboxResult!
+  terminateSandbox(id: ID!): SandboxResult!
+  deleteSandbox(id: ID!): DeleteResult!
+  execInSandbox(sandboxId: ID!, command: String!): FunctionCallResult!
+
+  # Volumes
+  createVolume(input: CreateVolumeInput!): VolumeResult!
+  deleteVolume(id: ID!): DeleteResult!
+  commitVolume(id: ID!): VolumeResult!
+  copyVolumeFile(volumeId: ID!, srcPath: String!, destPath: String!): VolumeResult!
+  removeVolumeFile(volumeId: ID!, path: String!): DeleteResult!
+
+  # Network File Systems
+  createNetworkFileSystem(name: String!, environmentId: ID!): NetworkFileSystem!
+  deleteNetworkFileSystem(id: ID!): DeleteResult!
+
+  # Secrets
+  createSecret(input: CreateSecretInput!): SecretResult!
+  updateSecret(id: ID!, input: UpdateSecretInput!): SecretResult!
+  deleteSecret(id: ID!): DeleteResult!
+
+  # Tokens
+  createToken(input: CreateTokenInput!): TokenResult!
+  revokeToken(id: ID!): DeleteResult!
+
+  # Schedules
+  createSchedule(input: CreateScheduleInput!): ScheduleResult!
+  updateSchedule(id: ID!, input: CreateScheduleInput!): ScheduleResult!
+  enableSchedule(id: ID!): ScheduleResult!
+  disableSchedule(id: ID!): ScheduleResult!
+  deleteSchedule(id: ID!): DeleteResult!
+
+  # Queues
+  createQueue(input: CreateQueueInput!): QueueResult!
+  deleteQueue(id: ID!): DeleteResult!
+  enqueueMessage(input: EnqueueMessageInput!): QueueMessageResult!
+  dequeueMessage(queueId: ID!): QueueMessageResult!
+  clearQueue(id: ID!): DeleteResult!
+
+  # Dicts
+  createDict(input: CreateDictInput!): DictResult!
+  deleteDict(id: ID!): DeleteResult!
+  setDictEntry(dictId: ID!, key: String!, value: JSON!): DictEntry!
+  deleteDictEntry(dictId: ID!, key: String!): DeleteResult!
+
+  # Web Endpoints
+  createWebEndpoint(input: CreateWebEndpointInput!): WebEndpointResult!
+  updateWebEndpoint(id: ID!, input: CreateWebEndpointInput!): WebEndpointResult!
+  deleteWebEndpoint(id: ID!): DeleteResult!
+
+  # Tunnels
+  createTunnel(appId: ID!, localPort: Int!, protocol: NetworkProtocol): Tunnel!
+  closeTunnel(id: ID!): DeleteResult!
+
+  # Workspace / Members
+  inviteWorkspaceMember(workspaceId: ID!, email: String!, role: MemberRole!): WorkspaceMember!
+  updateMemberRole(memberId: ID!, role: MemberRole!): WorkspaceMember!
+  removeWorkspaceMember(memberId: ID!): DeleteResult!
+
+  # Environments
+  createEnvironment(name: String!, workspaceId: ID!, tier: EnvironmentTier): Environment!
+  deleteEnvironment(id: ID!): DeleteResult!
+}
+
+# ─────────────────────────────────────────
+# Subscription Root
+# ─────────────────────────────────────────
+
+type Subscription {
+  # Function call lifecycle
+  functionCallUpdated(functionCallId: ID!): FunctionCall!
+  functionCallLogs(functionCallId: ID!): LogEntry!
+
+  # App state changes
+  appStateChanged(appId: ID!): App!
+
+  # Sandbox lifecycle
+  sandboxStateChanged(sandboxId: ID!): Sandbox!
+  sandboxLogs(sandboxId: ID!): LogEntry!
+
+  # Image build progress
+  imageBuildProgress(imageId: ID!): ContainerImage!
+
+  # Queue activity
+  queueMessageEnqueued(queueId: ID!): QueueMessage!
+
+  # Scheduled job updates
+  scheduledJobUpdated(scheduleId: ID!): ScheduledJob!
+
+  # Usage / quota alerts
+  quotaAlert(workspaceId: ID!): WorkspaceQuota!
+}
