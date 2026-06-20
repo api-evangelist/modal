@@ -6,7 +6,7 @@ description: Modal is a serverless cloud platform optimized for AI, data, and Py
   workloads. The Modal SDK and API let developers deploy GPU-accelerated functions,
   batch jobs, sandboxed code execution, web endpoints, and scheduled tasks with sub-second
   cold starts and pay-per-second billing.
-image: https://kinlane-productions.s3.amazonaws.com/apis-json/apis-json-logo.jpg
+image: https://kinlane-images.s3.amazonaws.com/shared/apis-json/apis-json-logo.jpg
 tags:
 - AI
 - Serverless
@@ -24,7 +24,7 @@ apis:
   - Functions
   - Serverless
   - Python
-  image: https://kinlane-productions.s3.amazonaws.com/apis-json/apis-json-logo.jpg
+  image: https://kinlane-images.s3.amazonaws.com/shared/apis-json/apis-json-logo.jpg
   humanURL: https://modal.com/docs/guide/apps
   baseURL: https://api.modal.com
   properties:
@@ -42,7 +42,7 @@ apis:
   tags:
   - Apps
   - Deployments
-  image: https://kinlane-productions.s3.amazonaws.com/apis-json/apis-json-logo.jpg
+  image: https://kinlane-images.s3.amazonaws.com/shared/apis-json/apis-json-logo.jpg
   humanURL: https://modal.com/docs/guide/apps
   baseURL: https://api.modal.com
   properties:
@@ -58,7 +58,7 @@ apis:
   - Sandboxes
   - Code Execution
   - Agents
-  image: https://kinlane-productions.s3.amazonaws.com/apis-json/apis-json-logo.jpg
+  image: https://kinlane-images.s3.amazonaws.com/shared/apis-json/apis-json-logo.jpg
   humanURL: https://modal.com/docs/guide/sandbox
   baseURL: https://api.modal.com
   properties:
@@ -75,7 +75,7 @@ apis:
   - Images
   - Containers
   - Build
-  image: https://kinlane-productions.s3.amazonaws.com/apis-json/apis-json-logo.jpg
+  image: https://kinlane-images.s3.amazonaws.com/shared/apis-json/apis-json-logo.jpg
   humanURL: https://modal.com/docs/guide/images
   baseURL: https://api.modal.com
   properties:
@@ -91,7 +91,7 @@ apis:
   - Volumes
   - Storage
   - Persistent
-  image: https://kinlane-productions.s3.amazonaws.com/apis-json/apis-json-logo.jpg
+  image: https://kinlane-images.s3.amazonaws.com/shared/apis-json/apis-json-logo.jpg
   humanURL: https://modal.com/docs/guide/volumes
   baseURL: https://api.modal.com
   properties:
@@ -107,7 +107,7 @@ apis:
   - File System
   - NFS
   - Storage
-  image: https://kinlane-productions.s3.amazonaws.com/apis-json/apis-json-logo.jpg
+  image: https://kinlane-images.s3.amazonaws.com/shared/apis-json/apis-json-logo.jpg
   humanURL: https://modal.com/docs/guide/network-file-systems
   baseURL: https://api.modal.com
   properties:
@@ -120,7 +120,7 @@ apis:
   tags:
   - Secrets
   - Configuration
-  image: https://kinlane-productions.s3.amazonaws.com/apis-json/apis-json-logo.jpg
+  image: https://kinlane-images.s3.amazonaws.com/shared/apis-json/apis-json-logo.jpg
   humanURL: https://modal.com/docs/guide/secrets
   baseURL: https://api.modal.com
   properties:
@@ -137,7 +137,7 @@ apis:
   - Web
   - WSGI
   - ASGI
-  image: https://kinlane-productions.s3.amazonaws.com/apis-json/apis-json-logo.jpg
+  image: https://kinlane-images.s3.amazonaws.com/shared/apis-json/apis-json-logo.jpg
   humanURL: https://modal.com/docs/guide/webhooks
   baseURL: https://api.modal.com
   properties:
@@ -150,7 +150,7 @@ apis:
   tags:
   - Cron
   - Schedules
-  image: https://kinlane-productions.s3.amazonaws.com/apis-json/apis-json-logo.jpg
+  image: https://kinlane-images.s3.amazonaws.com/shared/apis-json/apis-json-logo.jpg
   humanURL: https://modal.com/docs/guide/cron
   baseURL: https://api.modal.com
   properties:
@@ -163,7 +163,7 @@ apis:
   tags:
   - Queues
   - Messaging
-  image: https://kinlane-productions.s3.amazonaws.com/apis-json/apis-json-logo.jpg
+  image: https://kinlane-images.s3.amazonaws.com/shared/apis-json/apis-json-logo.jpg
   humanURL: https://modal.com/docs/reference/modal.Queue
   baseURL: https://api.modal.com
   properties:
@@ -176,7 +176,7 @@ apis:
   tags:
   - Dicts
   - Key-Value Store
-  image: https://kinlane-productions.s3.amazonaws.com/apis-json/apis-json-logo.jpg
+  image: https://kinlane-images.s3.amazonaws.com/shared/apis-json/apis-json-logo.jpg
   humanURL: https://modal.com/docs/reference/modal.Dict
   baseURL: https://api.modal.com
   properties:
@@ -189,7 +189,7 @@ apis:
   tags:
   - Tunnels
   - Networking
-  image: https://kinlane-productions.s3.amazonaws.com/apis-json/apis-json-logo.jpg
+  image: https://kinlane-images.s3.amazonaws.com/shared/apis-json/apis-json-logo.jpg
   humanURL: https://modal.com/docs/guide/tunnels
   baseURL: https://api.modal.com
   properties:
@@ -202,7 +202,7 @@ apis:
   tags:
   - Environments
   - Workspaces
-  image: https://kinlane-productions.s3.amazonaws.com/apis-json/apis-json-logo.jpg
+  image: https://kinlane-images.s3.amazonaws.com/shared/apis-json/apis-json-logo.jpg
   humanURL: https://modal.com/docs/guide/environments
   baseURL: https://api.modal.com
   properties:
@@ -216,7 +216,7 @@ apis:
   - Workspace
   - Tokens
   - Auth
-  image: https://kinlane-productions.s3.amazonaws.com/apis-json/apis-json-logo.jpg
+  image: https://kinlane-images.s3.amazonaws.com/shared/apis-json/apis-json-logo.jpg
   humanURL: https://modal.com/docs/guide/workspaces
   baseURL: https://api.modal.com
   properties:
