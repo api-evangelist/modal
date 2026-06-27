@@ -241,7 +241,7 @@ common:
   url: finops/modal-finops.yml
 - type: Integrations
   url: https://modal.com/partners
-- type: LLMsTxt
+- type: LlmsText
   url: https://modal.com/llms.txt
 integrations:
 - name: Modal
