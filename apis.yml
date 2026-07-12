@@ -225,6 +225,8 @@ apis:
   description: Manages workspaces, tokens, members, and authentication for the Modal
     control plane.
 common:
+- type: DomainSecurity
+  url: security/modal-domain-security.yml
 - type: GitHubOrganization
   url: https://github.com/modal-labs
 - type: LinkedIn
@@ -243,6 +245,8 @@ common:
   url: https://modal.com/partners
 - type: LlmsText
   url: https://modal.com/llms.txt
+- url: https://modal.com/blog/atom.xml
+  type: Blog
 integrations:
 - name: Modal
 - name: SGL
