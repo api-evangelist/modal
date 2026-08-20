@@ -20,6 +20,13 @@ accessModel:
   method: derived
 image: https://kinlane-images.s3.amazonaws.com/shared/apis-json/icons/modal.png
 tags:
+- Artificial Intelligence
+- Serverless
+- Compute
+- Python
+- Inference
+- GPU
+tags_raw:
 - AI
 - Serverless
 - Compute
@@ -52,6 +59,9 @@ apis:
 - aid: modal:modal-apps-api
   name: Modal Apps API
   tags:
+  - Application
+  - Deployment
+  tags_raw:
   - Apps
   - Deployments
   image: https://kinlane-images.s3.amazonaws.com/shared/apis-json/apis-json-logo.jpg
@@ -84,6 +94,10 @@ apis:
 - aid: modal:modal-images-api
   name: Modal Images API
   tags:
+  - Image
+  - Containers
+  - Builds
+  tags_raw:
   - Images
   - Containers
   - Build
@@ -116,6 +130,10 @@ apis:
 - aid: modal:modal-network-file-systems-api
   name: Modal Network File Systems API
   tags:
+  - Filesystem
+  - NFS
+  - Storage
+  tags_raw:
   - File System
   - NFS
   - Storage
@@ -225,6 +243,10 @@ apis:
 - aid: modal:modal-token-api
   name: Modal Token / Workspace API
   tags:
+  - Workspace
+  - Tokens
+  - Authentication
+  tags_raw:
   - Workspace
   - Tokens
   - Auth
