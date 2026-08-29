@@ -6,6 +6,17 @@ description: Modal is a serverless cloud platform optimized for AI, data, and Py
   workloads. The Modal SDK and API let developers deploy GPU-accelerated functions,
   batch jobs, sandboxed code execution, web endpoints, and scheduled tasks with sub-second
   cold starts and pay-per-second billing.
+deliveryModel:
+  model: saas
+  open_source: false
+  commercial: true
+  callable_host: false
+  label: Hosted service · you call their endpoint
+  confidence: medium
+  source:
+  - pricing
+  generated: '2026-08-28'
+  method: derived
 accessModel:
   pricing: paid
   onboarding: unknown
